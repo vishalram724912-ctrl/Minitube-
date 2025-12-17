@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniTube</title>
+  <style>
+    body { font-family: Arial; padding: 10px; background-color: #f5f5f5; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    #videos { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+    .video-card { border: 1px solid #ccc; padding: 10px; background-color: #fff; border-radius: 5px; }
+    video { width: 100%; max-height: 250px; border-radius: 5px; }
+    .video-buttons { display: flex; gap: 10px; margin-top: 5px; }
+    .video-buttons button { cursor: pointer; padding: 5px 10px; }
+    #uploadForm { border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #fff; }
+    #uploadForm input { display: block; width: 100%; margin-bottom: 10px; padding: 5px; }
+    #uploadForm button { padding: 10px 20px; cursor: pointer; }
+    .comments { margin-top: 5px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>MiniTube</h1>
+
+  <!-- Video List -->
+  <div id="videos"></div>
+
+  <!-- Upload Form -->
+  <div id="uploadForm">
+    <h3>Upload Video</h3>
+    <input type="file" id="videoFile" accept="video/*">
+    <input type="text" id="videoTitle" placeholder="Video Title">
+    <button id="uploadBtn">Upload</button>
+  </div>
+
+  <script>
+    // Initial sample videos
+    const videoList = [
+      {title: "Funny Clip", url: "https://www.w3schools.com/html/mov_bbb.mp4", likes: 0, comments: []},
+      {title: "Study Video", url: "https://www.w3schools.com/html/movie.mp4", likes: 0, comments: []},
+      {title: "Sample Clip", url: "https://www.w3schools.com/html/mov_bbb.mp4", likes: 0, comments: []}
+    ];
+
+    const videosDiv = document.getElementById("videos");
+    const uploadBtn = document.getElementById("uploadBtn");
+
+    // Function to display videos
+    function displayVideos() {
+      videosDiv.innerHTML = "";
+      videoList.forEach((video, index) => {
+        const div = document.createElement("div");
+        div.className = "video-card";
+
+        // Create HTML for video + buttons
+        div.innerHTML = `
+          <h3>${video.title}</h3>
+          <video controls>
+            <source src="${video.url}" type="video/mp4">
+          </video>
+          <div class="video-buttons">
+            <button id="likeBtn${index}">👍 Like (${video.likes})</button>
+            <button id="commentBtn${index}">💬 Comment</button>
+            <button id="shareBtn${index}">🔗 Share</button>
+          </div>
+          <div class="comments" id="comments${index}"></div>
+        `;
+        videosDiv.appendChild(div);
+
+        // Like button
+        document.getElementById(`likeBtn${index}`).onclick = () => {
+          video.likes++;
+          displayVideos();
+        };
+
+        // Comment button
+        document.getElementById(`commentBtn${index}`).onclick = () => {
+          const comment = prompt("Enter your comment:");
+          if(comment) {
+            video.comments.push(comment);
+            displayVideos();
+          }
+        };
+
+        // Share button
+        document.getElementById(`shareBtn${index}`).onclick = () => {
+          alert("Share this video link: " + video.url);
+        };
+
+        // Display comments
+        const commentsDiv = document.getElementById(`comments${index}`);
+        commentsDiv.innerHTML = video.comments.map(c => `• ${c}`).join("<br>");
+      });
+    }
+
+    // Upload new video (locally)
+    uploadBtn.onclick = function() {
+      const fileInput = document.getElementById("videoFile");
+      const titleInput = document.getElementById("videoTitle");
+      const file = fileInput.files[0];
+      const title = titleInput.value;
+
+      if (!file || !title) {
+        alert("Select a video file and enter a title!");
+        return;
+      }
+
+      const videoURL = URL.createObjectURL(file);
+      videoList.unshift({title: title, url: videoURL, likes: 0, comments: []});
+
+      fileInput.value = "";
+      titleInput.value = "";
+
+      displayVideos();
+    };
+
+    // Initial load
+    window.onload = displayVideos;
+  </script>
+</body>
+</html>
